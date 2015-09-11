@@ -32,7 +32,9 @@ var TrackedLink = React.createClass({
     // when this is link is clicked, it will fire an event key made of
     // {group}.{page}.click.{trackingName} (this sets the last part)
     trackingName: React.PropTypes.string.isRequired,
+    href: React.PropTypes.string.isRequired,
     className: React.PropTypes.string,
+    children: React.PropTypes.node,
   },
 
   contextTypes: {
@@ -40,7 +42,7 @@ var TrackedLink = React.createClass({
   },
 
   isExternal: function() {
-    return EXTERNAL_URL_RE.test(this.props.to);
+    return EXTERNAL_URL_RE.test(this.props.href);
   },
 
   render: function() {
@@ -50,11 +52,8 @@ var TrackedLink = React.createClass({
       <LinkType
         onClick={this.context.track.handle('click.' + this.props.trackingName)}
         data-click-key={this.context.track.clickKey(this.props.trackingName)}
-        href={this.props.to}
-        className={this.props.className}
-        {...this.props}>
-        {this.props.children}
-      </LinkType>
+        {...this.props}
+      />
     );
   }
 
