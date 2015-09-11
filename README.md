@@ -91,6 +91,6 @@ For example,
       to={appStoreUrl}
       trackingName="download_app"
     >
-      {_t('Download our App')}
+      Download our App
     </TrackedLink>
 ```

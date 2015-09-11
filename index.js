@@ -8,19 +8,19 @@
 
 var _ = require('underscore');
 
+// default to override in setup
 var _recordEvent = function() {
   throw new Error('Retracked setup() must first be called with an event recording function.');
 };
 
 var _actionNames = [];
 
-exports.setup = function(recordEventFn, actionNames) {
+function setup(recordEventFn, actionNames) {
   _recordEvent = recordEventFn;
   _actionNames = actionNames;
 };
 
-exports.makeTracker = function(config) {
-
+function makeTracker(config) {
   var include = config.include || {};
 
   /**
@@ -90,3 +90,8 @@ exports.makeTracker = function(config) {
 
   return track;
 };
+
+module.exports = {
+  setup,
+  makeTracker,
+}
