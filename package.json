@@ -1,6 +1,6 @@
 {
   "name": "retracked",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Isomorphic event and link tracking for React",
   "main": "index.js",
   "scripts": {
@@ -8,10 +8,11 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/coursera/retracked.git"
+    "url": "https://github.com/coursera/retracked.git"
   },
   "keywords": [
-    "react"
+    "react",
+    "react-component"
   ],
   "author": "Turadg Aleahmad <turadg@coursera.org> (http://turadg.aleahmad.net/)",
   "license": "Apache-2.0",
