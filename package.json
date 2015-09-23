@@ -4,7 +4,7 @@
   "description": "Isomorphic event and link tracking for React",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha --compilers js:babel/register"
   },
   "repository": {
     "type": "git",
@@ -19,5 +19,11 @@
   "bugs": {
     "url": "https://github.com/coursera/retracked/issues"
   },
-  "homepage": "https://github.com/coursera/retracked#readme"
+  "homepage": "https://github.com/coursera/retracked#readme",
+  "devDependencies": {
+    "babel": "^5.8.23",
+    "chai": "^1.10.0",
+    "mocha": "^2.1.0",
+    "react": "^0.13.3"
+  }
 }
