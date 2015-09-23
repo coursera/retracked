@@ -34,6 +34,7 @@ var TrackedLink = React.createClass({
     trackingName: React.PropTypes.string.isRequired,
     href: React.PropTypes.string.isRequired,
     className: React.PropTypes.string,
+    moreValues: React.PropTypes.object,
     children: React.PropTypes.node,
   },
 
@@ -41,16 +42,26 @@ var TrackedLink = React.createClass({
     track: React.PropTypes.func.isRequired
   },
 
-  isExternal: function() {
-    return EXTERNAL_URL_RE.test(this.props.href);
+  canRouteLocally() {
+    const isExternal = EXTERNAL_URL_RE.test(this.props.to);
+    if (isExternal) return false;
+
+    const matches = this.context.router.match(this.props.to);
+    if (!matches) return false;
+
+    const lastRoute = matches.routes[matches.routes.length - 1];
+    const localRouteMissing = lastRoute.isNotFound;
+    if (localRouteMissing) return false;
+
+    return true;
   },
 
   render: function() {
-    var LinkType = this.isExternal() ? 'a' : ReactRouter.Link;
+    var LinkType = this.canRouteLocally() ? ReactRouter.Link : 'a';
 
     return (
       <LinkType
-        onClick={this.context.track.handle('click.' + this.props.trackingName)}
+        onClick={this.context.track.handle('click.' + this.props.trackingName, this.props.moreValues)}
         data-click-key={this.context.track.clickKey(this.props.trackingName)}
         {...this.props}
       />
