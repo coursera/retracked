@@ -1,13 +1,13 @@
 # Retracked
 
-A little library to simplify event tracking in React components.
+A little library to streamline event tracking in React components.
 
 ## Basic event tracking
 
 Set it up in your bootstrap:
 ```js
 var myTracker = require('awesomeTracker');
-var retracked = require('retracked');
+var Retracked = require('retracked');
 
 var recordingFn = (fullEventKey, values) =>
   myTracker.record(fullEventKey, values);
@@ -23,24 +23,12 @@ var actionNames = [
   'expand',
 ];
 
-retracked.setup(recordingFn, actionNames);
+Retracked.setup(recordingFn, actionNames);
 ```
 
-Then in your components you can namespace the event tracking by context:
+Then in your components you can namespace the event tracking by wrapping in a context:
 ```js
 var AboutApp = React.createClass({
-
-  childContextTypes: {
-    track: React.PropTypes.func,
-  },
-
-  getChildContext: function() {
-    return {
-      track: Retracked.makeTracker({
-        namespace: 'about'
-      })
-    };
-  },
 
   render: function() {
     return (
@@ -51,6 +39,8 @@ var AboutApp = React.createClass({
   }
 
 });
+
+module.exports = Retracked.provideTracking(AboutApp);
 ```
 
 Then you can use that anywhere down the ownership hierarchy:

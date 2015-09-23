@@ -6,10 +6,9 @@
  * .track.handle(key, values) returns a function that records the event when evaluated.
  */
 
-var _ = require('underscore');
+import React from 'react';
 
-// default to override in setup
-var _recordEvent = function() {
+var _recordEvent = function(fullEventKey, values) {
   throw new Error('Retracked setup() must first be called with an event recording function.');
 };
 
@@ -18,19 +17,34 @@ var _actionNames = [];
 function setup(recordEventFn, actionNames) {
   _recordEvent = recordEventFn;
   _actionNames = actionNames;
-};
+}
 
-function makeTracker(config) {
-  var include = config.include || {};
+/**
+ * Clone object, evaluting each property that is a function
+ * @param  {Object} map keys map to simple values or functions
+ * @return {Object}     Clone of object, with each function value evaluated
+ */
+function cloneWithPropertyEval(map) {
+  const evaluatedMap = {};
+  Object.keys(map).forEach(key => {
+    const valOrFunc = map[key];
+    evaluatedMap[key] = (typeof valOrFunc === 'function') ?
+      valOrFunc() :
+      valOrFunc;
+  });
+  return evaluatedMap;
+}
+
+function makeTracker(config = {}) {
 
   /**
    * Expand the key argument into the full key that would be sent to eventing
    * @param  {String}
    * @return {String} the full key to send to eventing
    */
-  var expandKey = function(eventKey) {
+  function expandKey(eventKey) {
     return config.namespace ? config.namespace + '.' + eventKey : eventKey;
-  };
+  }
 
   /**
    * Track an event in the app.
@@ -38,26 +52,23 @@ function makeTracker(config) {
    * @param {Object} moreValues dictionary of values to attach to the logged event
    * @param {SyntheticEvent} [uiEvent] React's event, passed by track.handle
    */
-  var track = function(eventKey, moreValues, uiEvent) {
-    var fullEventKey = expandKey(eventKey);
+  function track(eventKey, moreValues, uiEvent) {
+    const fullEventKey = expandKey(eventKey);
 
-    // keys map to values or functions
-    var includeValues = _(_(include).map(function(valOrFunc, key) {
-      return [key, _(include).result(key)];
-    })).object();
+    const includeValues = cloneWithPropertyEval(config.include || {});
 
-    var values = _({}).extend(includeValues, moreValues);
+    const values = Object.assign({}, includeValues, moreValues);
 
     if (uiEvent && uiEvent.currentTarget) {
       // record features of the element interacted upon
-      var el = uiEvent.currentTarget;
+      const el = uiEvent.currentTarget;
       if (el.href) {
         values.href = el.href;
       }
     }
 
     _recordEvent(fullEventKey, values);
-  };
+  }
 
   /**
    * Curried form of track
@@ -79,7 +90,7 @@ function makeTracker(config) {
   /**
    * Expand the objectName argument into the full key that would be sent to eventing.
    *
-   * This is used for isomorphic link tracking in TrackedLink.
+   * This is used by preloader's instrumentLinks function.
    *
    * @param  {String}
    * @return {String} the full key to send to eventing
@@ -89,9 +100,35 @@ function makeTracker(config) {
   };
 
   return track;
-};
+}
+
+function provideTracking(Component, config = {}) {
+  const baseName = Component.displayName || Component.name;
+
+  const track = makeTracker(config);
+
+  const TrackingProvider = React.createClass({
+
+    displayName: baseName + 'TrackingProvider',
+
+    childContextTypes: {
+      track: React.PropTypes.func.isRequired
+    },
+
+    getChildContext() {
+      return {track};
+    },
+
+    render() {
+      return <Component {...this.props}/>;
+    }
+  });
+
+  return TrackingProvider;
+}
 
 module.exports = {
   setup,
   makeTracker,
-}
+  provideTracking,
+};
